@@ -1,6 +1,6 @@
 # Databricks Account Configuration
-databricks_account_id = "your-databricks-account-id"
-workspace_id         = "your-workspace-id"
+databricks_account_id = "782ba817-b9bf-4033-9aa9-56bb80139fba"
+workspace_id         = "1510274096129198"
 
 # Budget Policy Configuration
 budget_policies = {
@@ -14,19 +14,23 @@ budget_policies = {
       environment = "dev"
       team       = "dataintegration"
     }
-    owners = ["core-platform-team"]
-    users  = ["harika.gouthreddy@riotinto.com"]
+    owners = []
+    users  = []
   }
 }
 
 # Workspace Group Assignment Configuration
 workspace_group_assignments = {
-  "core-admins" = {
-    group_name  = "core-admins"
+  "db-rtlh-di-aws-syd-dev-owner" = {
+    group_name  = "db-rtlh-di-aws-syd-dev-owner"
     permissions = ["ADMIN"]
   }
-  "core-users" = {
-    group_name  = "core-users"
+  "db-rtlh-di-aws-syd-dev-analyst" = {
+    group_name  = "db-rtlh-di-aws-syd-dev-analyst"
+    permissions = ["USER"]
+  }
+  "db-rtlh-di-aws-syd-dev-engineer" = {
+    group_name  = "db-rtlh-di-aws-syd-dev-engineer"
     permissions = ["USER"]
   }
 }
