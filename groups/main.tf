@@ -1,31 +1,41 @@
 # Creates group in Databricks Account
 resource "databricks_group" "this" {
-  for_each = toset(compact(var.groups[*].name))
-
-  display_name = each.key
+  display_name = var.group_name
   lifecycle { ignore_changes = [external_id, allow_cluster_create, allow_instance_pool_create, databricks_sql_access, workspace_access] }
 }
 
-# Adds Users, Service Principals, and Groups to associated Databricks Account group
-resource "databricks_group_member" "this" {
-  for_each = merge(local.users_map, local.service_principals_map, local.groups_map)
+# Adds Users to the Databricks Account group
+resource "databricks_group_member" "users" {
+  for_each = var.users
 
-  group_id = databricks_group.this[each.value.name].id
-  member_id = startswith(each.key, "user") ? data.databricks_user.this[each.key].id : (
-    startswith(each.key, "sp") ? data.databricks_service_principal.this[each.key].id :
-    data.databricks_group.member_groups[each.key].id
-  )
+  group_id  = databricks_group.this.id
+  member_id = data.databricks_user.this[each.key].id
+}
+
+# Adds Service Principals to the Databricks Account group
+resource "databricks_group_member" "service_principals" {
+  for_each = var.service_principals
+
+  group_id  = databricks_group.this.id
+  member_id = data.databricks_service_principal.this[each.key].id
+}
+
+# Adds Groups to the Databricks Account group
+resource "databricks_group_member" "groups" {
+  for_each = var.groups
+
+  group_id  = databricks_group.this.id
+  member_id = data.databricks_group.member_groups[each.key].id
 }
 
 # Assigning Databricks Account group to Databricks Workspace
 resource "databricks_mws_permission_assignment" "this" {
   for_each = {
-    for group in var.workspace_group_assignment : group.group_name => group
-    if group.group_name != null
+    for idx, assignment in var.workspace_assignments : idx => assignment
   }
 
-  workspace_id = var.workspace_id
-  principal_id = data.databricks_group.this[each.key].id
+  workspace_id = var.workspaces[each.value.workspace_name].id
+  principal_id = databricks_group.this.id
   permissions  = each.value.permissions
 
   lifecycle {
