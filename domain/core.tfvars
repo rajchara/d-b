@@ -1,36 +1,83 @@
 # Databricks Account Configuration
-databricks_account_id = "782ba817-b9bf-4033-9aa9-56bb80139fba"
-workspace_id         = "1510274096129198"
+databricks_account_id    = "782ba817-b9bf-4033-9aa9-56bb80139fba"
+databricks_workspace_url = "https://accounts.cloud.databricks.com"
+domain_prefix            = "rtlh_di"
+environment              = "dev"
+
+workspaces = {
+  "db-rtlh-di-aws-syd-dev" = {
+    id = 1510274096129198
+  }
+  "db-rtlh-di-aws-syd-tst" = {
+    id = 585801573007897
+  }
+}
 
 # Budget Policy Configuration
 budget_policies = {
   "core-aws-budget" = {
     name             = "AWS Budget Policy"
-    workspaces       = ["db-rtlh-di-aws-syd-dev"]
-    tag_businessunit = "Core"
-    tag_domain      = "AWS"
-    tag_costcode    = "CC001"
+    workspaces       = ["db-rtlh-di-aws-syd-dev", "db-rtlh-di-aws-syd-tst"]
+    tag_businessunit = "core"
+    tag_domain       = "aws"
+    tag_costcode     = "P-1101088.02.10"
     customtags = {
       environment = "dev"
-      team       = "dataintegration"
+      team        = "DataIntegration"
     }
     owners = []
-    users  = []
+    users  = ["rtlh_di_analyst_dev"] # Use full group name
+  }
+}
+
+groups = {
+  "owner" = {
+    users              = []
+    service_principals = []
+    groups             = []
+  }
+  "analyst" = {
+    users              = ["harika.gouthreddy@riotinto.com"]
+    service_principals = []
+    groups             = []
+  }
+  "engineer" = {
+    users              = []
+    service_principals = []
+    groups             = []
   }
 }
 
 # Workspace Group Assignment Configuration
-workspace_group_assignments = {
-  "db-rtlh-di-aws-syd-dev-owner" = {
-    group_name  = "db-rtlh-di-aws-syd-dev-owner"
-    permissions = ["ADMIN"]
-  }
-  "db-rtlh-di-aws-syd-dev-analyst" = {
-    group_name  = "db-rtlh-di-aws-syd-dev-analyst"
-    permissions = ["USER"]
-  }
-  "db-rtlh-di-aws-syd-dev-engineer" = {
-    group_name  = "db-rtlh-di-aws-syd-dev-engineer"
-    permissions = ["USER"]
-  }
+workspace_group_assignment = {
+  "owner" = [
+    {
+      workspace_name = "db-rtlh-di-aws-syd-dev"
+      permissions    = ["ADMIN"]
+    },
+    {
+      workspace_name = "db-rtlh-di-aws-syd-tst"
+      permissions    = ["ADMIN"]
+    }
+  ]
+  "analyst" = [
+    {
+      workspace_name = "db-rtlh-di-aws-syd-dev"
+      permissions    = ["USER"]
+    },
+    {
+      workspace_name = "db-rtlh-di-aws-syd-tst"
+      permissions    = ["USER"]
+    }
+  ]
+  "engineer" = [
+    {
+      workspace_name = "db-rtlh-di-aws-syd-dev"
+      permissions    = ["USER"]
+    },
+    {
+      workspace_name = "db-rtlh-di-aws-syd-tst"
+      permissions    = ["USER"]
+    }
+  ]
 }
