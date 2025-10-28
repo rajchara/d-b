@@ -2,36 +2,50 @@
 # Groups Inputs
 ################################################################################
 
-variable "groups" {
-  type = list(object({
-    name               = optional(string)
-    users              = optional(set(string))
-    service_principals = optional(set(string))
-    groups             = optional(set(string))
-  }))
-  description = "List of objects with these parameters -  group names to create, sets of users, service principals, and/or groups assigned to these groups"
+variable "group_name" {
+  type        = string
+  description = "Name of the group to create"
+}
+
+variable "users" {
+  type        = set(string)
+  description = "Set of users to assign to the group"
   default     = []
 }
 
-variable "workspace_group_assignment" {
+variable "service_principals" {
+  type        = set(string)
+  description = "Set of service principals to assign to the group"
+  default     = []
+}
+
+variable "groups" {
+  type        = set(string)
+  description = "Set of groups to assign to the group"
+  default     = []
+}
+
+variable "workspace_assignments" {
   type = list(object({
-    group_name  = optional(string),
-    permissions = optional(list(string))
+    workspace_name = string
+    permissions    = list(string)
   }))
-  description = "List of objects with group name and list of workspace permissions (USER or ADMIN) to assign to this group"
+  description = "List of workspace assignments for this group"
   default     = []
 
   validation {
-    condition = length(var.workspace_group_assignment) != 0 ? alltrue([
-      for item in toset(flatten(var.workspace_group_assignment[*].permissions)) : contains(["USER", "ADMIN"], item)
+    condition = length(var.workspace_assignments) != 0 ? alltrue([
+      for item in toset(flatten([for assignment in var.workspace_assignments : assignment.permissions])) : contains(["USER", "ADMIN"], item)
       if item != null
     ]) : true
     error_message = "Please provide either 'USER' or 'ADMIN' permission level for Account group on Workspace"
   }
 }
 
-variable "workspace_id" {
-  type        = string
-  description = "The ID of the Databricks Workspace where Databricks Account group would be assigned"
-  default     = null
+variable "workspaces" {
+  type = map(object({
+    id = number
+  }))
+  description = "Map of workspace names to their IDs"
+  default     = {}
 }
