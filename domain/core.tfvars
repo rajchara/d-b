@@ -1,17 +1,9 @@
 # Databricks Account Configuration
-databricks_account_id    = "782ba817-b9bf-4033-9aa9-56bb80139fba"
-databricks_workspace_url = "https://accounts.cloud.databricks.com"
-domain_prefix            = "rtlh_di"
-environment              = "dev"
+domain_prefix  = "rtlh_di"
+environment    = "dev"
+cloud_provider = "aws"
 
-workspaces = {
-  "db-rtlh-di-aws-syd-dev" = {
-    id = 1510274096129198
-  }
-  "db-rtlh-di-aws-syd-tst" = {
-    id = 585801573007897
-  }
-}
+workspaces = ["db-rtlh-di-aws-syd-dev", "db-rtlh-di-aws-syd-tst"]
 
 # Budget Policy Configuration
 budget_policies = {
@@ -32,12 +24,12 @@ budget_policies = {
 
 groups = {
   "owner" = {
-    users              = []
+    users              = ["user@riotinto.com"]
     service_principals = []
     groups             = []
   }
   "analyst" = {
-    users              = ["harika.gouthreddy@riotinto.com"]
+    users              = ["user@riotinto.com"]
     service_principals = []
     groups             = []
   }
@@ -50,34 +42,65 @@ groups = {
 
 # Workspace Group Assignment Configuration
 workspace_group_assignment = {
-  "owner" = [
-    {
-      workspace_name = "db-rtlh-di-aws-syd-dev"
-      permissions    = ["ADMIN"]
-    },
-    {
-      workspace_name = "db-rtlh-di-aws-syd-tst"
-      permissions    = ["ADMIN"]
+  "db-rtlh-di-aws-syd-dev" = {
+    admin_groups = ["owner"]
+    user_groups  = ["analyst", "engineer"]
+  }
+  "db-rtlh-di-aws-syd-tst" = {
+    admin_groups = ["owner"]
+    user_groups  = ["analyst", "engineer"]
+  }
+}
+
+
+
+####### azure tfvars #####
+# Databricks Account Configuration
+domain_prefix  = "rtlh_di"
+environment    = "dev"
+cloud_provider = "azure"
+
+workspaces = ["db-rtlh-di-az-syd-dev"]
+
+# Budget Policy Configuration
+budget_policies = {
+  "core-az-budget" = {
+    name             = "Azure Budget Policy"
+    workspaces       = ["db-rtlh-di-az-syd-dev"]
+    tag_businessunit = "core"
+    tag_domain       = "azure"
+    tag_costcode     = "P-1101088.02.10"
+    customtags = {
+      environment = "dev"
+      team        = "DataIntegration"
     }
-  ]
-  "analyst" = [
-    {
-      workspace_name = "db-rtlh-di-aws-syd-dev"
-      permissions    = ["USER"]
-    },
-    {
-      workspace_name = "db-rtlh-di-aws-syd-tst"
-      permissions    = ["USER"]
-    }
-  ]
-  "engineer" = [
-    {
-      workspace_name = "db-rtlh-di-aws-syd-dev"
-      permissions    = ["USER"]
-    },
-    {
-      workspace_name = "db-rtlh-di-aws-syd-tst"
-      permissions    = ["USER"]
-    }
-  ]
+    owners = []
+    users  = ["rtlh_di_analyst_dev"] # Use full group name
+  }
+}
+
+groups = {
+  "owner" = {
+    users              = ["user@riotinto.com"]
+    service_principals = []
+    groups             = []
+  }
+  "analyst" = {
+    users              = ["user@riotinto.com"]
+    service_principals = []
+    groups             = []
+  }
+  "engineer" = {
+    users              = []
+    service_principals = []
+    groups             = []
+  }
+}
+
+# Workspace Group Assignment Configuration
+workspace_group_assignment = {
+  "db-rtlh-di-az-syd-dev" = {
+    admin_groups = ["owner"]
+    user_groups  = ["analyst", "engineer"]
+  }
 }
