@@ -1,10 +1,3 @@
-locals {
-  # Construct full group names for budget policies
-  full_group_names = {
-    for persona, config in var.groups : persona => "${var.domain_prefix}_${persona}_${var.environment}"
-  }
-}
-
 module "groups" {
   source   = "./groups"
   for_each = var.groups
@@ -17,8 +10,8 @@ module "groups" {
   users                 = each.value.users != null ? each.value.users : []
   service_principals    = each.value.service_principals != null ? each.value.service_principals : []
   groups                = each.value.groups != null ? each.value.groups : []
-  workspace_assignments = lookup(var.workspace_group_assignment, each.key, [])
-  workspaces           = var.workspaces
+  workspace_assignments = local.group_workspace_assignments[each.key]
+  workspaces            = local.workspace_ids
 }
 
 module "budget_policies" {
@@ -30,7 +23,7 @@ module "budget_policies" {
     databricks = databricks.mws
   }
 
-  databricks_account_id = var.databricks_account_id
+  databricks_account_id = var.cloud_provider == "aws" ? "782ba817-b9bf-4033-9aa9-56bb80139fba" : "fe1630db-b2af-4ac1-a394-9f0e33096a57"
   name                  = each.value.name
   workspaces            = each.value.workspaces
   tag_businessunit      = each.value.tag_businessunit
