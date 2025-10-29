@@ -1,15 +1,19 @@
-variable "databricks_account_id" {
-  description = "The ID of the Databricks Account"
-  type        = string
+variable "workspaces" {
+  description = "List of workspace names to lookup"
+  type        = list(string)
+  default     = []
 }
 
-variable "workspaces" {
-  description = "Map of workspace names to their IDs"
-  type = map(object({
-    id = number
-  }))
-  default = {}
+variable "cloud_provider" {
+  description = "Cloud provider (aws or azure)"
+  type        = string
+  validation {
+    condition     = contains(["aws", "azure"], var.cloud_provider)
+    error_message = "Cloud provider must be either 'aws' or 'azure'."
+  }
 }
+
+
 
 variable "budget_policies" {
   description = "Map of budget policies to create"
@@ -27,11 +31,11 @@ variable "budget_policies" {
 }
 
 variable "workspace_group_assignment" {
-  description = "Map of group names to their workspace assignments"
-  type = map(list(object({
-    workspace_name = string
-    permissions    = list(string)
-  })))
+  description = "Map of workspace names to admin and user group assignments"
+  type = map(object({
+    admin_groups = optional(list(string), [])
+    user_groups  = optional(list(string), [])
+  }))
   default = {}
 }
 
@@ -54,11 +58,6 @@ variable "groups" {
     groups             = optional(set(string))
   }))
   default = {}
-}
-
-variable "databricks_workspace_url" {
-  description = "The URL of the Databricks workspace"
-  type        = string
 }
 
 variable "domain_prefix" {
